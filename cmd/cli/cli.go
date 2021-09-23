@@ -3,12 +3,19 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"labdb/internal/core/services/search"
 	"log"
 	"os"
+
+	"github.com/fatih/color"
 )
 
+var stdin = os.Stdin
+var searchService = search.NewSearch()
+
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+
+	reader := bufio.NewReader(stdin)
 	buf := []byte{}
 	isOpenQuote := false
 	for {
@@ -21,11 +28,23 @@ func main() {
 				isOpenQuote = !isOpenQuote
 			}
 		}
+		if len(buf) != 0 {
+			buf = append(buf, 8)
+		}
 		buf = append(buf, line...)
+
 		if !isOpenQuote {
 			isLineEnded, endedFrom := lineEnded(&buf)
 			if isLineEnded {
-				fmt.Printf("\n%s\n", buf[:endedFrom+1])
+				res, err := searchService.Execute(string(buf[:endedFrom+1]))
+				if err != nil {
+					color.Set(color.FgRed)
+					fmt.Printf("%v\n", err)
+					color.Unset()
+				}
+				color.Set(color.FgGreen)
+				fmt.Printf("%v\n", res)
+				color.Unset()
 				buf = []byte{}
 			}
 		}
