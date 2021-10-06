@@ -7,10 +7,13 @@ import (
 	"strings"
 )
 
-var pattern = regexp.MustCompile(`[^\w\s'.";<>]+`)
+var pattern = regexp.MustCompile(`[^\w\s'."*;<>]+`)
 var whitespacePattern = regexp.MustCompile(`\s+`)
 
 func Parse(str string) (Query, error) {
+	if str[len(str)-1] == ';' {
+		str = str[:len(str)-1]
+	}
 	str = pattern.ReplaceAllString(str, "")
 	str, memMap := replaceRawStrings(str)
 	str = whitespacePattern.ReplaceAllString(str, " ")
@@ -42,14 +45,19 @@ func replaceRawStrings(str string) (res string, memMap map[string]string) {
 				counter++
 				res += string(buf[:mem]) + memStr
 				memMap[memStr] = string(buf[mem+1 : i])
-				buf = buf[i:]
+				buf = buf[i+1:]
 				i = 0
+				mem = -1
 			}
 		}
 	}
 	if len(res) == 0 {
 		res = string(buf)
+	} else {
+		res += string(buf)
 	}
+	fmt.Println(res)
+
 	return
 }
 
@@ -94,10 +102,10 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if strings.ToLower(split[2]) != "where" {
-		return Search{}, fmt.Errorf("There are must be where statement")
+		return Search{}, fmt.Errorf("there are must be where statement")
 	}
 
-	if len(memMap) != 1 && len(split) != 2 {
+	if len(memMap) != 1 && len(memMap) != 2 {
 		return Search{}, fmt.Errorf("search query must have 1 or 2 search words in quotes")
 	}
 
@@ -110,9 +118,8 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 		if strings.HasSuffix(split[3], "**") {
 			return Search{}, fmt.Errorf("prefix statement must have only one '*' symbol")
 		}
-
 		if len(mapIndex) != 0 {
-			mapIndex = mapIndex[:len(mapIndex)-2]
+			mapIndex = mapIndex[:len(mapIndex)-1]
 		}
 		if memMap[mapIndex] == "" {
 			return search, fmt.Errorf("bad search parameter")
@@ -124,6 +131,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if memMap[mapIndex] == "" {
+		fmt.Println(mapIndex)
 		return search, fmt.Errorf("bad search parameter")
 	}
 
