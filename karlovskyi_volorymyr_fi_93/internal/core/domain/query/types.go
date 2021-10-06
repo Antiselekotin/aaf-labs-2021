@@ -25,6 +25,10 @@ type Where interface {
 
 }
 
+type WhereNone struct {
+
+}
+
 type WhereWord struct {
 	Word string
 }

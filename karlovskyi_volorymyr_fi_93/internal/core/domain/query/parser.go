@@ -82,11 +82,23 @@ func parseInsertQuery(str string, memMap map[string]string) (Insert, error) {
 
 func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	split := strings.Split(str, " ")
-	if len(split) != 4 || len(split) != 6 {
-		return Search{}, fmt.Errorf("search statement must have 4 or 6 words")
+	if len(split) != 2 && len(split) != 4 && len(split) != 6 {
+		return Search{}, fmt.Errorf("search statement must have 2 or 4 or 6 words")
 	}
-	if len(memMap) != 1 || len(split) != 2 {
-		return Search{}, fmt.Errorf("create query must have 1 or 2 words")
+
+	if len(split) == 2 {
+		return Search{
+			CollectionName: split[1],
+			Where:          WhereNone{},
+		}, nil
+	}
+
+	if strings.ToLower(split[2]) != "where" {
+		return Search{}, fmt.Errorf("There are must be where statement")
+	}
+
+	if len(memMap) != 1 && len(split) != 2 {
+		return Search{}, fmt.Errorf("search query must have 1 or 2 search words in quotes")
 	}
 
 	search := Search{
