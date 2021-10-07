@@ -56,7 +56,6 @@ func replaceRawStrings(str string) (res string, memMap map[string]string) {
 	} else {
 		res += string(buf)
 	}
-	fmt.Println(res)
 
 	return
 }
@@ -131,7 +130,6 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if memMap[mapIndex] == "" {
-		fmt.Println(mapIndex)
 		return search, fmt.Errorf("bad search parameter")
 	}
 

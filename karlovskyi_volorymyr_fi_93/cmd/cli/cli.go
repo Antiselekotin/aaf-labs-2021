@@ -36,7 +36,11 @@ func main() {
 		if !isOpenQuote {
 			isLineEnded, endedFrom := lineEnded(&buf)
 			if isLineEnded {
-				res, err := searchService.Execute(string(buf[:endedFrom+1]))
+				str := string(buf[:endedFrom+1])
+				if str == ".EXIT;" {
+					os.Exit(0)
+				}
+				res, err := searchService.Execute(str)
 				if err != nil {
 					color.Set(color.FgRed)
 					fmt.Printf("%v\n", err)
