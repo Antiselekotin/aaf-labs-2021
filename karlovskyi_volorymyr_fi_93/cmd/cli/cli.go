@@ -2,16 +2,14 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"labdb/internal/core/services/search"
 	"log"
 	"os"
-
-	"github.com/fatih/color"
 )
 
 var stdin = os.Stdin
-var searchService = search.NewSearch()
+var ra = cliResponseAdapter{}
+var searchService = search.NewSearch(&ra)
 
 func main() {
 
@@ -40,15 +38,7 @@ func main() {
 				if str == ".EXIT;" {
 					os.Exit(0)
 				}
-				res, err := searchService.Execute(str)
-				if err != nil {
-					color.Set(color.FgRed)
-					fmt.Printf("%v\n", err)
-					color.Unset()
-				}
-				color.Set(color.FgGreen)
-				fmt.Printf("%v\n", res)
-				color.Unset()
+				searchService.Execute(str)
 				buf = []byte{}
 			}
 		}
