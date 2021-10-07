@@ -29,6 +29,10 @@ func Parse(str string) (Query, error) {
 		return parseSearchQuery(str, memMap)
 	}
 
+	if strings.HasPrefix(strings.ToLower(str), "print_index ") {
+		return parsePrintQuery(str, memMap)
+	}
+
 	return nil, fmt.Errorf("unknown statement")
 }
 
@@ -162,4 +166,17 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	search.Where = where
 
 	return search, nil
+}
+
+func parsePrintQuery(str string, memMap map[string]string) (Print, error) {
+	split := strings.Split(str, " ")
+	if len(split) != 2 {
+		return Print{}, fmt.Errorf("print_index statement must have 2 words")
+	}
+	if len(memMap) != 0 {
+		return Print{}, fmt.Errorf("print_index statement must have no quotes")
+	}
+	return Print{
+		CollectionName: split[1],
+	}, nil
 }

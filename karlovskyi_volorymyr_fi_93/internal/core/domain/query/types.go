@@ -19,6 +19,10 @@ type Search struct {
 	Where
 }
 
+type Print struct {
+	CollectionName string
+}
+
 // Visitor
 
 type Where interface {

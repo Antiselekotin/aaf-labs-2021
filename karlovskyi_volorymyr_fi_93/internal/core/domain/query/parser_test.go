@@ -177,3 +177,38 @@ func TestParseOnIncorrectSearchQueries(t *testing.T) {
 		}
 	}
 }
+
+func TestParseOnCorrectPrintQueries(t *testing.T) {
+	queries := map[string]Print{
+		"pRint_index schema;": Print{CollectionName: "schema",},
+		"print_index\nsCC": Print{CollectionName: "sCC",},
+	}
+
+	for query, expect := range queries {
+		result, err := Parse(query)
+		if err != nil {
+			t.Errorf("Parse func return error: '%v' on input '%v' but it must not", err, query)
+		}
+		print, ok := result.(Print)
+		if !ok {
+			t.Error("Parse func return not Print but it must")
+		}
+		if print.CollectionName != expect.CollectionName {
+			t.Errorf("print.CollectionName = '%v', but expect '%v'", print.CollectionName, expect.CollectionName)
+		}
+	}
+}
+
+func TestParseOnIncorrectPrintQueries(t *testing.T) {
+	queries := []string{
+		"print index;",
+		"print_index word word;",
+		"print_index \"schema\";",
+	}
+	for _, query := range queries {
+		_, err := Parse(query)
+		if err == nil {
+			t.Errorf("Parse func accept incorrect input '%v'", query)
+		}
+	}
+}
