@@ -8,7 +8,7 @@ func TestParseOnCorrectInsertQueries(t *testing.T) {
 			CollectionName: "schema",
 			Content:        "something interesting",
 		},
-		"inSeRt sCheMa \n\n\n \"something INTeresting\";": Insert{
+		"inSeRt sCheMa\n\"something INTeresting\";": Insert{
 			CollectionName: "sCheMa",
 			Content:        "something INTeresting",
 		},
@@ -53,10 +53,13 @@ func TestParseOnIncorrectInsertQueries(t *testing.T) {
 
 func TestParseOnCorrectCreateQueries(t *testing.T) {
 	queries := map[string]Create{
-		"create schema;": Create{
+		"create\nt;": Create{
+			Name: "t",
+		},
+		"create\nschema;": Create{
 			Name: "schema",
 		},
-		"cReAte \n\n sCheMa \n\n;": Create{
+		"cReAte\n\nsCheMa\n\n;": Create{
 			Name: "sCheMa",
 		},
 		"creATE mmasfgwe_wegeg;": Create{

@@ -29,7 +29,7 @@ func main() {
 			}
 		}
 		if len(buf) != 0 {
-			buf = append(buf, 8)
+			buf = append(buf, '\n')
 		}
 		buf = append(buf, line...)
 
