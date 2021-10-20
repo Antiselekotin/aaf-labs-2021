@@ -100,10 +100,10 @@ func TestParseOnIncorrectCreateQueries(t *testing.T) {
 
 func TestParseOnCorrectSearchQueries(t *testing.T) {
 	queries := map[string]Search{
-		"search \n\nschema\n\n;":           Search{CollectionName: "schema", Where: WhereNone{}},
-		"SearCH scHema Where \"word\";":    Search{CollectionName: "scHema", Where: WhereWord{"word"}},
-		"search schema where \"prefix\"*;": Search{CollectionName: "schema", Where: WherePrefix{"prefix"}},
-		"search schema where \"first\" <12> \"last\"": Search{CollectionName: "schema", Where: WhereInterval{
+		"search \n\nschema\n\n;":           Search{CollectionName: "schema", Where: &WhereNone{}},
+		"SearCH scHema Where \"word\";":    Search{CollectionName: "scHema", Where: &WhereWord{"word"}},
+		"search schema where \"prefix\"*;": Search{CollectionName: "schema", Where: &WherePrefix{"prefix"}},
+		"search schema where \"first\" <12> \"last\"": Search{CollectionName: "schema", Where: &WhereInterval{
 			FirstWord: "first", LastWord: "last", Interval: 12,
 		}},
 	}
@@ -121,13 +121,13 @@ func TestParseOnCorrectSearchQueries(t *testing.T) {
 			t.Errorf("search.CollectionName = '%v', but expect '%v'", search.CollectionName, expect.CollectionName)
 		}
 		switch where := search.Where.(type) {
-		case WhereNone:
-			_, ok = expect.Where.(WhereNone)
+		case *WhereNone:
+			_, ok = expect.Where.(*WhereNone)
 			if !ok {
 				t.Errorf("Where type is not WhereNone on input '%v'", query)
 			}
-		case WhereWord:
-			w, ok := expect.Where.(WhereWord)
+		case *WhereWord:
+			w, ok := expect.Where.(*WhereWord)
 			if !ok {
 				t.Errorf("Where type is not WhereWord on input '%v'", query)
 				break
@@ -135,8 +135,8 @@ func TestParseOnCorrectSearchQueries(t *testing.T) {
 			if w.Word != where.Word {
 				t.Errorf("w.Word is %v on input '%v'", w.Word, query)
 			}
-		case WherePrefix:
-			w, ok := expect.Where.(WherePrefix)
+		case *WherePrefix:
+			w, ok := expect.Where.(*WherePrefix)
 			if !ok {
 				t.Errorf("Where type is not WherePrefix on input '%v'", query)
 				break
@@ -144,8 +144,8 @@ func TestParseOnCorrectSearchQueries(t *testing.T) {
 			if w.Prefix != where.Prefix {
 				t.Errorf("w.Prefix is %v on input '%v'", w.Prefix, query)
 			}
-		case WhereInterval:
-			w, ok := expect.Where.(WhereInterval)
+		case *WhereInterval:
+			w, ok := expect.Where.(*WhereInterval)
 			if !ok {
 				t.Errorf("Where type is not WherePrefix on input '%v'", query)
 				break

@@ -1,7 +1,6 @@
 package search
 
 import (
-	"fmt"
 	"labdb/internal/core/domain/engine"
 	"labdb/internal/core/domain/query"
 )
@@ -26,6 +25,8 @@ type ResponseAdapter interface {
 	OnInsertFailure(error)
 	OnPrintSuccess(string)
 	OnPrintFailure(error)
+	OnSearchSuccess([]string)
+	OnSearchFailure(error)
 }
 
 func NewSearch(r ResponseAdapter) Service {
@@ -58,7 +59,11 @@ func (s *service) Execute(str string) {
 		}
 		s.responseAdapter.OnInsertSuccess(str)
 	case query.Search:
-		fmt.Printf("%[1]T: %[1]v", typed)
+		strs, err := s.db.Search(typed)
+		if err != nil {
+			s.responseAdapter.OnSearchFailure(err)
+		}
+		s.responseAdapter.OnSearchSuccess(strs)
 	case query.Print:
 		str, err := s.db.Print(typed)
 		if err != nil {

@@ -23,25 +23,3 @@ type Print struct {
 	CollectionName string
 }
 
-// Visitor
-
-type Where interface {
-
-}
-
-type WhereNone struct {
-
-}
-
-type WhereWord struct {
-	Word string
-}
-
-type WherePrefix struct {
-	Prefix string
-}
-
-type WhereInterval struct {
-	FirstWord, LastWord string
-	Interval int
-}

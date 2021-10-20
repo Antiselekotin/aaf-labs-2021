@@ -44,3 +44,13 @@ func (ra *cliResponseAdapter) OnPrintSuccess(str string) {
 func (ra *cliResponseAdapter) OnPrintFailure(err error) {
 	ra.OnError(err)
 }
+
+func (ra *cliResponseAdapter) OnSearchSuccess(strs []string) {
+	for _, str := range strs {
+		ra.OnSuccess(str)
+	}
+}
+
+func (ra *cliResponseAdapter) OnSearchFailure(err error) {
+	ra.OnError(err)
+}

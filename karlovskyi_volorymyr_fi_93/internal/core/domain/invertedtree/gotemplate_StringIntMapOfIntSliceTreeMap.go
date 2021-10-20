@@ -23,7 +23,7 @@
 //             fmt.Println(it.Key(), it.Value())
 //         }
 //     }
-package engine
+package invertedtree
 
 // template type TreeMap(Key, Value)
 
@@ -32,7 +32,7 @@ package engine
 // Value is a generic value type of the map
 
 // TreeMap is the red-black tree based map
-type stringIntMapOfIntSliceTreeMap struct {
+type StringIntMapOfIntSliceTreeMap struct {
 	endNode   *nodeStringIntMapOfIntSliceTreeMap
 	beginNode *nodeStringIntMapOfIntSliceTreeMap
 	count     int
@@ -51,18 +51,18 @@ type nodeStringIntMapOfIntSliceTreeMap struct {
 
 // New creates and returns new TreeMap.
 // Parameter less is a function returning a < b.
-func newStringIntMapOfIntSliceTreeMap(less func(a string, b string) bool) *stringIntMapOfIntSliceTreeMap {
+func NewStringIntMapOfIntSliceTreeMap(less func(a string, b string) bool) *StringIntMapOfIntSliceTreeMap {
 	endNode := &nodeStringIntMapOfIntSliceTreeMap{isBlack: true}
-	return &stringIntMapOfIntSliceTreeMap{beginNode: endNode, endNode: endNode, Less: less}
+	return &StringIntMapOfIntSliceTreeMap{beginNode: endNode, endNode: endNode, Less: less}
 }
 
 // Len returns total count of elements in a map.
 // Complexity: O(1).
-func (t *stringIntMapOfIntSliceTreeMap) Len() int { return t.count }
+func (t *StringIntMapOfIntSliceTreeMap) Len() int { return t.count }
 
 // Set sets the value and silently overrides previous value if it exists.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) Set(key string, value map[int][]int) {
+func (t *StringIntMapOfIntSliceTreeMap) Set(key string, value map[int][]int) {
 	parent := t.endNode
 	current := parent.left
 	less := true
@@ -95,7 +95,7 @@ func (t *stringIntMapOfIntSliceTreeMap) Set(key string, value map[int][]int) {
 
 // Del deletes the value.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) Del(key string) {
+func (t *StringIntMapOfIntSliceTreeMap) Del(key string) {
 	z := t.findNode(key)
 	if z == nil {
 		return
@@ -113,7 +113,7 @@ func (t *stringIntMapOfIntSliceTreeMap) Del(key string) {
 
 // Clear clears the map.
 // Complexity: O(1).
-func (t *stringIntMapOfIntSliceTreeMap) Clear() {
+func (t *StringIntMapOfIntSliceTreeMap) Clear() {
 	t.count = 0
 	t.beginNode = t.endNode
 	t.endNode.left = nil
@@ -121,7 +121,7 @@ func (t *stringIntMapOfIntSliceTreeMap) Clear() {
 
 // Get retrieves a value from a map for specified key and reports if it exists.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) Get(id string) (map[int][]int, bool) {
+func (t *StringIntMapOfIntSliceTreeMap) Get(id string) (map[int][]int, bool) {
 	node := t.findNode(id)
 	if node == nil {
 		node = t.endNode
@@ -131,36 +131,36 @@ func (t *stringIntMapOfIntSliceTreeMap) Get(id string) (map[int][]int, bool) {
 
 // Contains checks if key exists in a map.
 // Complexity: O(log N)
-func (t *stringIntMapOfIntSliceTreeMap) Contains(id string) bool { return t.findNode(id) != nil }
+func (t *StringIntMapOfIntSliceTreeMap) Contains(id string) bool { return t.findNode(id) != nil }
 
 // Range returns a pair of iterators that you can use to go through all the keys in the range [from, to].
 // More specifically it returns iterators pointing to lower bound and upper bound.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) Range(from, to string) (forwardIteratorStringIntMapOfIntSliceTreeMap, forwardIteratorStringIntMapOfIntSliceTreeMap) {
+func (t *StringIntMapOfIntSliceTreeMap) Range(from, to string) (ForwardIteratorStringIntMapOfIntSliceTreeMap, ForwardIteratorStringIntMapOfIntSliceTreeMap) {
 	return t.LowerBound(from), t.UpperBound(to)
 }
 
 // LowerBound returns an iterator pointing to the first element that is not less than the given key.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) LowerBound(key string) forwardIteratorStringIntMapOfIntSliceTreeMap {
+func (t *StringIntMapOfIntSliceTreeMap) LowerBound(key string) ForwardIteratorStringIntMapOfIntSliceTreeMap {
 	result := t.endNode
 	node := t.endNode.left
 	if node == nil {
-		return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.endNode}
+		return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.endNode}
 	}
 	for {
 		if t.Less(node.key, key) {
 			if node.right != nil {
 				node = node.right
 			} else {
-				return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
+				return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
 			}
 		} else {
 			result = node
 			if node.left != nil {
 				node = node.left
 			} else {
-				return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
+				return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
 			}
 		}
 	}
@@ -168,25 +168,25 @@ func (t *stringIntMapOfIntSliceTreeMap) LowerBound(key string) forwardIteratorSt
 
 // UpperBound returns an iterator pointing to the first element that is greater than the given key.
 // Complexity: O(log N).
-func (t *stringIntMapOfIntSliceTreeMap) UpperBound(key string) forwardIteratorStringIntMapOfIntSliceTreeMap {
+func (t *StringIntMapOfIntSliceTreeMap) UpperBound(key string) ForwardIteratorStringIntMapOfIntSliceTreeMap {
 	result := t.endNode
 	node := t.endNode.left
 	if node == nil {
-		return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.endNode}
+		return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.endNode}
 	}
 	for {
 		if !t.Less(key, node.key) {
 			if node.right != nil {
 				node = node.right
 			} else {
-				return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
+				return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
 			}
 		} else {
 			result = node
 			if node.left != nil {
 				node = node.left
 			} else {
-				return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
+				return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: result}
 			}
 		}
 	}
@@ -196,23 +196,23 @@ func (t *stringIntMapOfIntSliceTreeMap) UpperBound(key string) forwardIteratorSt
 // It starts at the first element and goes to the one-past-the-end position.
 // You can iterate a map at O(N) complexity.
 // Method complexity: O(1)
-func (t *stringIntMapOfIntSliceTreeMap) Iterator() forwardIteratorStringIntMapOfIntSliceTreeMap {
-	return forwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.beginNode}
+func (t *StringIntMapOfIntSliceTreeMap) Iterator() ForwardIteratorStringIntMapOfIntSliceTreeMap {
+	return ForwardIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: t.beginNode}
 }
 
 // Reverse returns a reverse iterator for tree map.
 // It starts at the last element and goes to the one-before-the-start position.
 // You can iterate a map at O(N) complexity.
 // Method complexity: O(log N)
-func (t *stringIntMapOfIntSliceTreeMap) Reverse() reverseIteratorStringIntMapOfIntSliceTreeMap {
+func (t *StringIntMapOfIntSliceTreeMap) Reverse() ReverseIteratorStringIntMapOfIntSliceTreeMap {
 	node := t.endNode.left
 	if node != nil {
 		node = mostRightStringIntMapOfIntSliceTreeMap(node)
 	}
-	return reverseIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: node}
+	return ReverseIteratorStringIntMapOfIntSliceTreeMap{tree: t, node: node}
 }
 
-func (t *stringIntMapOfIntSliceTreeMap) findNode(id string) *nodeStringIntMapOfIntSliceTreeMap {
+func (t *StringIntMapOfIntSliceTreeMap) findNode(id string) *nodeStringIntMapOfIntSliceTreeMap {
 	current := t.endNode.left
 	for current != nil {
 		switch {
@@ -293,7 +293,7 @@ func rotateRightStringIntMapOfIntSliceTreeMap(x *nodeStringIntMapOfIntSliceTreeM
 	x.parent = y
 }
 
-func (t *stringIntMapOfIntSliceTreeMap) insertFixup(x *nodeStringIntMapOfIntSliceTreeMap) {
+func (t *StringIntMapOfIntSliceTreeMap) insertFixup(x *nodeStringIntMapOfIntSliceTreeMap) {
 	root := t.endNode.left
 	x.isBlack = x == root
 	for x != root && !x.parent.isBlack {
@@ -474,18 +474,18 @@ func removeNodeStringIntMapOfIntSliceTreeMap(root *nodeStringIntMapOfIntSliceTre
 // ForwardIterator represents a position in a tree map.
 // It is designed to iterate a map in a forward order.
 // It can point to any position from the first element to the one-past-the-end element.
-type forwardIteratorStringIntMapOfIntSliceTreeMap struct {
-	tree *stringIntMapOfIntSliceTreeMap
+type ForwardIteratorStringIntMapOfIntSliceTreeMap struct {
+	tree *StringIntMapOfIntSliceTreeMap
 	node *nodeStringIntMapOfIntSliceTreeMap
 }
 
 // Valid reports if an iterator's position is valid.
 // In other words it returns true if an iterator is not at the one-past-the-end position.
-func (i forwardIteratorStringIntMapOfIntSliceTreeMap) Valid() bool { return i.node != i.tree.endNode }
+func (i ForwardIteratorStringIntMapOfIntSliceTreeMap) Valid() bool { return i.node != i.tree.endNode }
 
 // Next moves an iterator to the next element.
 // It panics if goes out of bounds.
-func (i *forwardIteratorStringIntMapOfIntSliceTreeMap) Next() {
+func (i *ForwardIteratorStringIntMapOfIntSliceTreeMap) Next() {
 	if i.node == i.tree.endNode {
 		panic("out of bound iteration")
 	}
@@ -494,7 +494,7 @@ func (i *forwardIteratorStringIntMapOfIntSliceTreeMap) Next() {
 
 // Prev moves an iterator to the previous element.
 // It panics if goes out of bounds.
-func (i *forwardIteratorStringIntMapOfIntSliceTreeMap) Prev() {
+func (i *ForwardIteratorStringIntMapOfIntSliceTreeMap) Prev() {
 	i.node = predecessorStringIntMapOfIntSliceTreeMap(i.node)
 	if i.node == nil {
 		panic("out of bound iteration")
@@ -502,26 +502,26 @@ func (i *forwardIteratorStringIntMapOfIntSliceTreeMap) Prev() {
 }
 
 // Key returns a key at an iterator's position
-func (i forwardIteratorStringIntMapOfIntSliceTreeMap) Key() string { return i.node.key }
+func (i ForwardIteratorStringIntMapOfIntSliceTreeMap) Key() string { return i.node.key }
 
 // Value returns a value at an iterator's position
-func (i forwardIteratorStringIntMapOfIntSliceTreeMap) Value() map[int][]int { return i.node.value }
+func (i ForwardIteratorStringIntMapOfIntSliceTreeMap) Value() map[int][]int { return i.node.value }
 
 // ReverseIterator represents a position in a tree map.
 // It is designed to iterate a map in a reverse order.
 // It can point to any position from the one-before-the-start element to the last element.
-type reverseIteratorStringIntMapOfIntSliceTreeMap struct {
-	tree *stringIntMapOfIntSliceTreeMap
+type ReverseIteratorStringIntMapOfIntSliceTreeMap struct {
+	tree *StringIntMapOfIntSliceTreeMap
 	node *nodeStringIntMapOfIntSliceTreeMap
 }
 
 // Valid reports if an iterator's position is valid.
 // In other words it returns true if an iterator is not at the one-before-the-start position.
-func (i reverseIteratorStringIntMapOfIntSliceTreeMap) Valid() bool { return i.node != nil }
+func (i ReverseIteratorStringIntMapOfIntSliceTreeMap) Valid() bool { return i.node != nil }
 
 // Next moves an iterator to the next element in reverse order.
 // It panics if goes out of bounds.
-func (i *reverseIteratorStringIntMapOfIntSliceTreeMap) Next() {
+func (i *ReverseIteratorStringIntMapOfIntSliceTreeMap) Next() {
 	if i.node == nil {
 		panic("out of bound iteration")
 	}
@@ -530,7 +530,7 @@ func (i *reverseIteratorStringIntMapOfIntSliceTreeMap) Next() {
 
 // Prev moves an iterator to the previous element in reverse order.
 // It panics if goes out of bounds.
-func (i *reverseIteratorStringIntMapOfIntSliceTreeMap) Prev() {
+func (i *ReverseIteratorStringIntMapOfIntSliceTreeMap) Prev() {
 	if i.node != nil {
 		i.node = successorStringIntMapOfIntSliceTreeMap(i.node)
 	} else {
@@ -542,7 +542,7 @@ func (i *reverseIteratorStringIntMapOfIntSliceTreeMap) Prev() {
 }
 
 // Key returns a key at an iterator's position
-func (i reverseIteratorStringIntMapOfIntSliceTreeMap) Key() string { return i.node.key }
+func (i ReverseIteratorStringIntMapOfIntSliceTreeMap) Key() string { return i.node.key }
 
 // Value returns a value at an iterator's position
-func (i reverseIteratorStringIntMapOfIntSliceTreeMap) Value() map[int][]int { return i.node.value }
+func (i ReverseIteratorStringIntMapOfIntSliceTreeMap) Value() map[int][]int { return i.node.value }

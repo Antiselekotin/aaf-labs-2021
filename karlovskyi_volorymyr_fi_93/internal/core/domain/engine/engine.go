@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"labdb/internal/core/domain/query"
 	"labdb/internal/core/domain/textprocessing"
+	tree "labdb/internal/core/domain/invertedtree"
 )
-
-//go:generate gotemplate "github.com/igrmk/treemap" "stringIntMapOfIntSliceTreeMap(string, map[int][]int)"
 
 type Database interface {
 	Create(q query.Create) (string, error)
 	Insert(q query.Insert) (string, error)
 	Print(q query.Print) (string, error)
+	Search(q query.Search) ([]string, error)
 }
 
 type database struct {
@@ -28,7 +28,7 @@ func New() *database {
 
 type Collection struct {
 	content       []string
-	reversedIndex stringIntMapOfIntSliceTreeMap
+	reversedIndex tree.StringIntMapOfIntSliceTreeMap
 }
 
 func stringIntMapOfIntSliceTreeMapLess(a, b string) bool { return a < b }
@@ -37,7 +37,7 @@ func (db *database) Create(q query.Create) (success string, err error) {
 	if db.collectionsRegistry[q.Name] {
 		return "", fmt.Errorf("Collection %v already exists", q.Name)
 	}
-	reversedIndex := newStringIntMapOfIntSliceTreeMap(stringIntMapOfIntSliceTreeMapLess)
+	reversedIndex := tree.NewStringIntMapOfIntSliceTreeMap(stringIntMapOfIntSliceTreeMapLess)
 	db.collections[q.Name] = &Collection{reversedIndex: *reversedIndex}
 	db.collectionsRegistry[q.Name] = true
 
@@ -66,3 +66,5 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 	collection.content = append(collection.content, originalContent)
 	return "Content has been added", nil
 }
+
+

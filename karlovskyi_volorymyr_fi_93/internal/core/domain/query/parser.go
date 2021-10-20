@@ -69,7 +69,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	if len(split) == 2 {
 		return Search{
 			CollectionName: split[1],
-			Where:          WhereNone{},
+			Where:          &WhereNone{},
 		}, nil
 	}
 
@@ -96,7 +96,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 		if memMap[mapIndex] == "" {
 			return search, fmt.Errorf("bad search parameter")
 		}
-		search.Where = WherePrefix{
+		search.Where = &WherePrefix{
 			Prefix: memMap[mapIndex],
 		}
 		return search, nil
@@ -107,7 +107,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if len(split) == 4 {
-		search.Where = WhereWord{
+		search.Where = &WhereWord{
 			Word: memMap[mapIndex],
 		}
 		return search, nil
@@ -132,7 +132,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 		Interval:  int(internal),
 	}
 
-	search.Where = where
+	search.Where = &where
 
 	return search, nil
 }
