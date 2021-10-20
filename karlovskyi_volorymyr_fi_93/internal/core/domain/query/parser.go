@@ -2,23 +2,21 @@ package query
 
 import (
 	"fmt"
-	"regexp"
 	"strconv"
 	"strings"
-)
 
-var pattern = regexp.MustCompile(`[^\w\s'."*;<>]+`)
-var whitespacePattern = regexp.MustCompile(`\s+`)
+	"labdb/internal/core/domain/textprocessing"
+)
 
 func Parse(str string) (Query, error) {
 	if str[len(str)-1] == ';' {
 		str = str[:len(str)-1]
 	}
-	str = pattern.ReplaceAllString(str, "")
-	str, memMap := replaceRawStrings(str)
-	str = whitespacePattern.ReplaceAllString(str, " ")
-	str = strings.TrimLeft(str, " ")
-	str = strings.TrimRight(str, " ")
+	str = textprocessing.Filter(str)
+	str, memMap := replaceRawString(str)
+	str = textprocessing.RemoveIndent(str)
+	str = textprocessing.Trim(str)
+
 	if strings.HasPrefix(strings.ToLower(str), "create ") {
 		return parseCreateQuery(str, memMap)
 	}
@@ -28,40 +26,11 @@ func Parse(str string) (Query, error) {
 	if strings.HasPrefix(strings.ToLower(str), "search ") {
 		return parseSearchQuery(str, memMap)
 	}
-
 	if strings.HasPrefix(strings.ToLower(str), "print_index ") {
 		return parsePrintQuery(str, memMap)
 	}
 
 	return nil, fmt.Errorf("unknown statement")
-}
-
-func replaceRawStrings(str string) (res string, memMap map[string]string) {
-	memMap = make(map[string]string)
-	buf := []byte(str)
-	counter, mem := 1, -1
-	for i := 0; i < len(buf); i++ {
-		if buf[i] == '"' {
-			if mem == -1 {
-				mem = i
-			} else {
-				memStr := fmt.Sprintf("$%v", counter)
-				counter++
-				res += string(buf[:mem]) + memStr
-				memMap[memStr] = string(buf[mem+1 : i])
-				buf = buf[i+1:]
-				i = 0
-				mem = -1
-			}
-		}
-	}
-	if len(res) == 0 {
-		res = string(buf)
-	} else {
-		res += string(buf)
-	}
-
-	return
 }
 
 func parseCreateQuery(str string, memMap map[string]string) (Create, error) {
@@ -180,3 +149,4 @@ func parsePrintQuery(str string, memMap map[string]string) (Print, error) {
 		CollectionName: split[1],
 	}, nil
 }
+

@@ -19,8 +19,11 @@ type Service interface {
 
 type ResponseAdapter interface {
 	OnError(error)
+	OnSuccess(string)
 	OnCreateSuccess(string)
 	OnCreateFailure(error)
+	OnInsertSuccess(string)
+	OnInsertFailure(error)
 }
 
 func NewSearch(r ResponseAdapter) Service {
@@ -46,7 +49,12 @@ func (s *service) Execute(str string) {
 		}
 		s.responseAdapter.OnCreateSuccess(str)
 	case query.Insert:
-		fmt.Printf("%[1]T: %[1]v", typed)
+		str, err := s.db.Insert(typed)
+		if err != nil {
+			s.responseAdapter.OnInsertFailure(err)
+			break
+		}
+		s.responseAdapter.OnInsertSuccess(str)
 	case query.Search:
 		fmt.Printf("%[1]T: %[1]v", typed)
 	case query.Print:
