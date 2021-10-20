@@ -11,16 +11,17 @@ import (
 type Database interface {
 	Create(q query.Create) (string, error)
 	Insert(q query.Insert) (string, error)
+	Print(q query.Print) (string, error)
 }
 
 type database struct {
-	collections         map[string]Collection
+	collections         map[string]*Collection
 	collectionsRegistry map[string]bool
 }
 
 func New() *database {
 	return &database{
-		collections:         make(map[string]Collection),
+		collections:         make(map[string]*Collection),
 		collectionsRegistry: make(map[string]bool),
 	}
 }
@@ -37,7 +38,7 @@ func (db *database) Create(q query.Create) (success string, err error) {
 		return "", fmt.Errorf("Collection %v already exists", q.Name)
 	}
 	reversedIndex := newStringIntMapOfIntSliceTreeMap(stringIntMapOfIntSliceTreeMapLess)
-	db.collections[q.Name] = Collection{reversedIndex: *reversedIndex}
+	db.collections[q.Name] = &Collection{reversedIndex: *reversedIndex}
 	db.collectionsRegistry[q.Name] = true
 
 	return fmt.Sprintf("Collection %v has been successfully created", q.Name), nil
@@ -62,7 +63,6 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 		oldMap[insertIndex] = positions
 		collection.reversedIndex.Set(word, oldMap)
 	}
-	
 	collection.content = append(collection.content, originalContent)
 	return "Content has been added", nil
 }

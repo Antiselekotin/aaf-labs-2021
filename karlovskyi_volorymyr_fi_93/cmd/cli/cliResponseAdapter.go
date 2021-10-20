@@ -36,3 +36,11 @@ func (ra *cliResponseAdapter) OnInsertSuccess(str string) {
 func (ra *cliResponseAdapter) OnInsertFailure(err error) {
 	ra.OnError(err)
 }
+
+func (ra *cliResponseAdapter) OnPrintSuccess(str string) {
+	ra.OnSuccess(str)
+}
+
+func (ra *cliResponseAdapter) OnPrintFailure(err error) {
+	ra.OnError(err)
+}

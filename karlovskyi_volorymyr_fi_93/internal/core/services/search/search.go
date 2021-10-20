@@ -9,7 +9,7 @@ import (
 var hiddenDB = engine.New()
 
 type service struct {
-	db engine.Database
+	db              engine.Database
 	responseAdapter ResponseAdapter
 }
 
@@ -24,11 +24,13 @@ type ResponseAdapter interface {
 	OnCreateFailure(error)
 	OnInsertSuccess(string)
 	OnInsertFailure(error)
+	OnPrintSuccess(string)
+	OnPrintFailure(error)
 }
 
 func NewSearch(r ResponseAdapter) Service {
 	return &service{
-		db: hiddenDB,
+		db:              hiddenDB,
 		responseAdapter: r,
 	}
 }
@@ -58,10 +60,13 @@ func (s *service) Execute(str string) {
 	case query.Search:
 		fmt.Printf("%[1]T: %[1]v", typed)
 	case query.Print:
-		fmt.Printf("%[1]T: %[1]v", typed)
+		str, err := s.db.Print(typed)
+		if err != nil {
+			s.responseAdapter.OnPrintFailure(err)
+			break
+		}
+		s.responseAdapter.OnPrintSuccess(str)
 	default:
 		panic("unknown query")
 	}
 }
-
-
