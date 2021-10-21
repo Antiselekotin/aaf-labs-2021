@@ -2,9 +2,10 @@ package engine
 
 import (
 	"fmt"
+	tree "labdb/internal/core/domain/invertedtree"
 	"labdb/internal/core/domain/query"
 	"labdb/internal/core/domain/textprocessing"
-	tree "labdb/internal/core/domain/invertedtree"
+	"strings"
 )
 
 type Database interface {
@@ -51,7 +52,8 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 	collection := db.collections[q.CollectionName]
 	originalContent := q.Content
 	contentNoPunc := textprocessing.RemovePunctuation(originalContent)
-	content := textprocessing.RemoveIndent(contentNoPunc)
+	lowerContent := strings.ToLower(contentNoPunc)
+	content := textprocessing.RemoveIndent(lowerContent)
 	insertIndex := len(collection.content)
 	splitMap := textprocessing.SplitStringWithPositions(content)
 
@@ -66,5 +68,3 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 	collection.content = append(collection.content, originalContent)
 	return "Content has been added", nil
 }
-
-
