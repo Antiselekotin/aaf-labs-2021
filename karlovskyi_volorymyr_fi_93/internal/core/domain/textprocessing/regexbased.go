@@ -7,9 +7,10 @@ import (
 
 var indentPattern = regexp.MustCompile(`\s+`)
 var allowedPattern = regexp.MustCompile(`[^\w\s'."*;<>]+`)
-var forRemovingPunctuation = regexp.MustCompile(`\sa-zA-Z0-9_]+`)
+var forRemovingPunctuation = regexp.MustCompile(`[^\sa-zA-Z0-9_]+`)
 
 func RemoveIndent(s string) string {
+	s = Trim(s)
 	return indentPattern.ReplaceAllString(s, " ")
 }
 
