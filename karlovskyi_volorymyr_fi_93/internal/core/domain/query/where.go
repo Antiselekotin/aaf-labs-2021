@@ -40,7 +40,7 @@ func (a *WhereWord) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
 	if !ok {
 		return ids
 	}
-	for key, _ := range m {
+	for key := range m {
 		ids = append(ids, key)
 	}
 	return ids
@@ -51,9 +51,7 @@ type WherePrefix struct {
 }
 
 func (a *WherePrefix) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
-	ids := []int{}
 	prefix := a.Prefix
-
 	root := t.RootNode().Left()
 	for root != nil && !strings.HasPrefix(root.Key(), prefix) {
 		if t.Less(root.Key(), prefix) {
@@ -64,25 +62,15 @@ func (a *WherePrefix) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
 	}
 
 	if root == nil {
-		return ids
+		return []int{}
 	}
-	nodes := tree.ItterationSlice{root}
-	for i := 0; i < len(nodes); i++ {
-		node := nodes[i]
-		if strings.HasPrefix(node.Key(), prefix) {
-			for id := range node.Value() {
-				ids = append(ids, id)
-			}
-			if l := node.Left(); l != nil {
-				nodes = append(nodes, l)
-			}
-
-			if r := node.Right(); r != nil {
-				nodes = append(nodes, r)
-			}
-		}
-		nodes = nodes[1:]
-		i = 0
+	idsMap := map[int]struct{}{}
+	root.SearchByPrefix(prefix, &idsMap)
+	ids := make([]int, len(idsMap))
+	i := 0
+	for id := range idsMap {
+		ids[i] = id
+		i++
 	}
 	return ids
 }

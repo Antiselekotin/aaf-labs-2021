@@ -3,6 +3,7 @@ package invertedtree
 import (
 	"fmt"
 	"labdb/internal/core/domain/textprocessing"
+	"strings"
 )
 
 func (t *StringIntMapOfIntSliceTreeMap) RootNode() *nodeStringIntMapOfIntSliceTreeMap {
@@ -52,6 +53,21 @@ func (n *nodeStringIntMapOfIntSliceTreeMap) Key() string {
 
 func (n *nodeStringIntMapOfIntSliceTreeMap) Value() map[int][]int {
 	return n.value
+}
+
+func (n *nodeStringIntMapOfIntSliceTreeMap) SearchByPrefix(prefix string, docIds *map[int]struct{}) {
+	if strings.HasPrefix(n.Key(), prefix) {
+		for id := range n.Value() {
+			(*docIds)[id] = struct{}{}
+		}
+		if l := n.Left(); l != nil {
+			n.Left().SearchByPrefix(prefix, docIds)
+		}
+
+		if r := n.Right(); r != nil {
+			n.Right().SearchByPrefix(prefix, docIds)
+		}
+	}
 }
 
 type ItterationSlice []*nodeStringIntMapOfIntSliceTreeMap
