@@ -93,21 +93,29 @@ type WhereInterval struct {
 }
 
 func (a *WhereInterval) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
-	ids := []int{}
 	f, ok1 := t.Get(a.FirstWord)
 	l, ok2 := t.Get(a.LastWord)
-
+	ids := []int{}
 	if !ok1 || !ok2 {
 		return ids
 	}
+	var smaller, bigger []int = nil, nil
 
 	for docFId, positionsF := range f {
 		positionsL := l[docFId]
-		for i, j := 0, 0; i < len(positionsF) && j < len(positionsL); i++ {
-			for positionsF[i]+a.Interval > positionsL[j] {
-				j++
-			}
-			if positionsF[i]+a.Interval == positionsL[j] {
+		if len(positionsF) > len(positionsL) {
+			smaller = positionsL
+			bigger = positionsF
+		} else {
+			smaller = positionsF
+			bigger = positionsL
+		}
+		smallMap := make(map[int]bool, len(smaller))
+		for _, pos := range smaller {
+			smallMap[pos] = true
+		}
+		for _, b := range bigger {
+			if smallMap[b+a.Interval] == true || smallMap[b-a.Interval] == true {
 				ids = append(ids, docFId)
 				break
 			}
