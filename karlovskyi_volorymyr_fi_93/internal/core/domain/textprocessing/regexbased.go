@@ -26,5 +26,5 @@ func Filter(s string) string {
 }
 
 func RemovePunctuation(s string) string {
-	return forRemovingPunctuation.ReplaceAllString(s, "")
+	return RemoveIndent(forRemovingPunctuation.ReplaceAllString(s, " "))
 }

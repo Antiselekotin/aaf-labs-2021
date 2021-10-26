@@ -52,8 +52,7 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 	collection := db.collections[q.CollectionName]
 	originalContent := q.Content
 	contentNoPunc := textprocessing.RemovePunctuation(originalContent)
-	lowerContent := strings.ToLower(contentNoPunc)
-	content := textprocessing.RemoveIndent(lowerContent)
+	content := strings.ToLower(contentNoPunc)
 	insertIndex := len(collection.content)
 	splitMap := textprocessing.SplitStringWithPositions(content)
 
