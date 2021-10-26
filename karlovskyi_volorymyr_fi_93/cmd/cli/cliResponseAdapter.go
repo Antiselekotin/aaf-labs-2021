@@ -9,6 +9,12 @@ import (
 type cliResponseAdapter struct {
 }
 
+func (ra *cliResponseAdapter) Warning(str string) {
+	color.Set(color.FgYellow)
+	fmt.Printf("%v\n", str)
+	color.Unset()
+}
+
 func (ra *cliResponseAdapter) OnSuccess(str string) {
 	color.Set(color.FgGreen)
 	fmt.Printf("%v\n", str)
@@ -46,6 +52,9 @@ func (ra *cliResponseAdapter) OnPrintFailure(err error) {
 }
 
 func (ra *cliResponseAdapter) OnSearchSuccess(strs []string) {
+	if len(strs) == 0 {
+		ra.Warning("We didn't find any matches")
+	}
 	for _, str := range strs {
 		ra.OnSuccess(str)
 	}
