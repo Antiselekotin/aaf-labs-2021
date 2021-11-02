@@ -12,11 +12,9 @@ func Parse(str string) (Query, error) {
 	if str[len(str)-1] == ';' {
 		str = str[:len(str)-1]
 	}
-	str = textprocessing.Filter(str)
 	str, memMap := replaceRawString(str)
 	str = textprocessing.RemoveIndent(str)
 	str = textprocessing.Trim(str)
-
 	if strings.HasPrefix(strings.ToLower(str), "create ") {
 		return parseCreateQuery(str, memMap)
 	}
@@ -149,4 +147,3 @@ func parsePrintQuery(str string, memMap map[string]string) (Print, error) {
 		CollectionName: split[1],
 	}, nil
 }
-

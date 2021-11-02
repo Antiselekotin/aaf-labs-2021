@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"labdb/internal/core/domain/textprocessing"
 )
 
 func replaceRawString(str string) (res string, memMap map[string]string) {
@@ -15,7 +16,7 @@ func replaceRawString(str string) (res string, memMap map[string]string) {
 			} else {
 				memStr := fmt.Sprintf("$%v", counter)
 				counter++
-				res += string(buf[:mem]) + memStr
+				res += textprocessing.Filter(string(buf[:mem])) + " " + memStr
 				memMap[memStr] = string(buf[mem+1 : i])
 				buf = buf[i+1:]
 				i = 0
@@ -28,6 +29,5 @@ func replaceRawString(str string) (res string, memMap map[string]string) {
 	} else {
 		res += string(buf)
 	}
-
 	return
 }
