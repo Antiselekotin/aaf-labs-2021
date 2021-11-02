@@ -25,6 +25,10 @@ func Filter(s string) string {
 	return allowedPattern.ReplaceAllString(s, " ")
 }
 
+func ReplaceNotAllowedChars(s string) string {
+	return allowedPattern.ReplaceAllString(s, " ")
+}
+
 func RemovePunctuation(s string) string {
 	return RemoveIndent(forRemovingPunctuation.ReplaceAllString(s, " "))
 }

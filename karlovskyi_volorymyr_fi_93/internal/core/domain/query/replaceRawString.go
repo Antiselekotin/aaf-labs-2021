@@ -16,7 +16,7 @@ func replaceRawString(str string) (res string, memMap map[string]string) {
 			} else {
 				memStr := fmt.Sprintf("$%v", counter)
 				counter++
-				res += textprocessing.Filter(string(buf[:mem])) + " " + memStr + " "
+				res += textprocessing.ReplaceNotAllowedChars(string(buf[:mem])) + memStr
 				memMap[memStr] = string(buf[mem+1 : i])
 				buf = buf[i+1:]
 				i = 0
@@ -30,7 +30,5 @@ func replaceRawString(str string) (res string, memMap map[string]string) {
 	} else {
 		res += string(buf)
 	}
-
-	res = textprocessing.Trim(res)
 	return
 }
