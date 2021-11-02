@@ -55,17 +55,43 @@ func (n *nodeStringIntMapOfIntSliceTreeMap) Value() map[int][]int {
 	return n.value
 }
 
-func (n *nodeStringIntMapOfIntSliceTreeMap) SearchByPrefix(prefix string, docIds *map[int]struct{}) {
+
+
+func (t *StringIntMapOfIntSliceTreeMap) SearchByPrefix(prefix string) []int {
+	root := t.RootNode().Left()
+	for root != nil && !strings.HasPrefix(root.Key(), prefix) {
+		if t.Less(root.Key(), prefix) {
+			root = root.Right()
+		} else {
+			root = root.Left()
+		}
+	}
+
+	if root == nil {
+		return []int{}
+	}
+	idsMap := map[int]struct{}{}
+	root.searchByPrefix(prefix, &idsMap)
+	ids := make([]int, len(idsMap))
+	i := 0
+	for id := range idsMap {
+		ids[i] = id
+		i++
+	}
+	return ids
+}
+
+func (n *nodeStringIntMapOfIntSliceTreeMap) searchByPrefix(prefix string, docIds *map[int]struct{}) {
 	if strings.HasPrefix(n.Key(), prefix) {
 		for id := range n.Value() {
 			(*docIds)[id] = struct{}{}
 		}
 		if l := n.Left(); l != nil {
-			n.Left().SearchByPrefix(prefix, docIds)
+			n.Left().searchByPrefix(prefix, docIds)
 		}
 
 		if r := n.Right(); r != nil {
-			n.Right().SearchByPrefix(prefix, docIds)
+			n.Right().searchByPrefix(prefix, docIds)
 		}
 	}
 }

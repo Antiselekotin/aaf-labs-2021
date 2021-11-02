@@ -2,7 +2,6 @@ package query
 
 import (
 	tree "labdb/internal/core/domain/invertedtree"
-	"strings"
 )
 
 // Visitor
@@ -52,27 +51,7 @@ type WherePrefix struct {
 
 func (a *WherePrefix) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
 	prefix := a.Prefix
-	root := t.RootNode().Left()
-	for root != nil && !strings.HasPrefix(root.Key(), prefix) {
-		if t.Less(root.Key(), prefix) {
-			root = root.Right()
-		} else {
-			root = root.Left()
-		}
-	}
-
-	if root == nil {
-		return []int{}
-	}
-	idsMap := map[int]struct{}{}
-	root.SearchByPrefix(prefix, &idsMap)
-	ids := make([]int, len(idsMap))
-	i := 0
-	for id := range idsMap {
-		ids[i] = id
-		i++
-	}
-	return ids
+	return t.SearchByPrefix(prefix)
 }
 
 type WhereInterval struct {
@@ -103,7 +82,7 @@ func (a *WhereInterval) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
 			smallMap[pos] = true
 		}
 		for _, b := range bigger {
-			if smallMap[b+a.Interval] == true || smallMap[b-a.Interval] == true {
+			if smallMap[b+a.Interval] || smallMap[b-a.Interval] {
 				ids = append(ids, docFId)
 				break
 			}
