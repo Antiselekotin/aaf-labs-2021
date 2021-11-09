@@ -55,23 +55,14 @@ func (n *nodeStringIntMapOfIntSliceTreeMap) Value() map[int][]int {
 	return n.value
 }
 
-
-
 func (t *StringIntMapOfIntSliceTreeMap) SearchByPrefix(prefix string) []int {
-	root := t.RootNode().Left()
-	for root != nil && !strings.HasPrefix(root.Key(), prefix) {
-		if t.Less(root.Key(), prefix) {
-			root = root.Right()
-		} else {
-			root = root.Left()
-		}
-	}
+	root := t.RootNode().Left().goToNextPrefix(prefix, t.Less)
 
 	if root == nil {
 		return []int{}
 	}
 	idsMap := map[int]struct{}{}
-	root.searchByPrefix(prefix, &idsMap)
+	root.searchByPrefix(prefix, &idsMap, t.Less)
 	ids := make([]int, len(idsMap))
 	i := 0
 	for id := range idsMap {
@@ -81,19 +72,34 @@ func (t *StringIntMapOfIntSliceTreeMap) SearchByPrefix(prefix string) []int {
 	return ids
 }
 
-func (n *nodeStringIntMapOfIntSliceTreeMap) searchByPrefix(prefix string, docIds *map[int]struct{}) {
-	if strings.HasPrefix(n.Key(), prefix) {
-		for id := range n.Value() {
-			(*docIds)[id] = struct{}{}
-		}
-		if l := n.Left(); l != nil {
-			n.Left().searchByPrefix(prefix, docIds)
-		}
+func (n *nodeStringIntMapOfIntSliceTreeMap) searchByPrefix(prefix string, docIds *map[int]struct{}, less func(string, string) bool) {
+	if !strings.HasPrefix(n.Key(), prefix) {
+		n = n.goToNextPrefix(prefix, less)
+	}
+	if n == nil {
+		return
+	}
+	for id := range n.Value() {
+		(*docIds)[id] = struct{}{}
+	}
+	if l := n.Left(); l != nil {
+		n.Left().searchByPrefix(prefix, docIds, less)
+	}
 
-		if r := n.Right(); r != nil {
-			n.Right().searchByPrefix(prefix, docIds)
+	if r := n.Right(); r != nil {
+		n.Right().searchByPrefix(prefix, docIds, less)
+	}
+}
+
+func (n *nodeStringIntMapOfIntSliceTreeMap) goToNextPrefix(prefix string, less func(string, string) bool) *nodeStringIntMapOfIntSliceTreeMap {
+	for n != nil && !strings.HasPrefix(n.Key(), prefix) {
+		if less(n.Key(), prefix) {
+			n = n.Right()
+		} else {
+			n = n.Left()
 		}
 	}
+	return n
 }
 
 type ItterationSlice []*nodeStringIntMapOfIntSliceTreeMap
