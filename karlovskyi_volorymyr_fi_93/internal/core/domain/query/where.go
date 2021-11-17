@@ -34,11 +34,11 @@ type WhereWord struct {
 }
 
 func (a *WhereWord) Filter(t tree.StringIntMapOfIntSliceTreeMap) []int {
-	ids := []int{}
 	m, ok := t.Get(a.Word)
 	if !ok {
-		return ids
+		return []int{}
 	}
+	ids := make([]int, 0, len(m))
 	for key := range m {
 		ids = append(ids, key)
 	}
