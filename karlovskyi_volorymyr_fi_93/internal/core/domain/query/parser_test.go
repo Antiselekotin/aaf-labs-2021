@@ -1,20 +1,23 @@
 package query
 
-import "testing"
+import (
+	"testing"
+	"bytes"
+)
 
 func TestParseOnCorrectInsertQueries(t *testing.T) {
 	queries := map[string]Insert{
 		"Insert schema \"something interesting\";": Insert{
 			CollectionName: "schema",
-			Content:        "something interesting",
+			Content:        []byte("something interesting"),
 		},
 		"inSeRt sCheMa\n\"something INTeresting\";": Insert{
 			CollectionName: "sCheMa",
-			Content:        "something INTeresting",
+			Content:        []byte("something INTeresting"),
 		},
 		"inSeRt mmasfgwe_wegeg \n\n\n \"INTeresting\"\n\n\n;": Insert{
 			CollectionName: "mmasfgwe_wegeg",
-			Content:        "INTeresting",
+			Content:        []byte("INTeresting"),
 		},
 	}
 
@@ -31,7 +34,7 @@ func TestParseOnCorrectInsertQueries(t *testing.T) {
 		if insert.CollectionName != expect.CollectionName {
 			t.Errorf("Insert.CollectionName = '%v', but expect '%v'", insert.CollectionName, expect.CollectionName)
 		}
-		if insert.Content != expect.Content {
+		if bytes.Equal(insert.Content, expect.Content) {
 			t.Errorf("insert.Content = '%v', but expect '%v'", insert.Content, expect.Content)
 		}
 	}

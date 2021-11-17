@@ -1,10 +1,10 @@
 package engine
 
 import (
+	"bytes"
 	"fmt"
 	"labdb/internal/core/domain/query"
 	"math/rand"
-	"strings"
 	"testing"
 )
 
@@ -34,14 +34,14 @@ var contentTest = []string{
 func init()  {
 	create := query.Create{Name: colName}
 	db.Create(create)
-	insert := query.Insert{CollectionName: colName, Content: ""}
+	insert := query.Insert{CollectionName: colName, Content: []byte{}}
 	for i := 1; i < baseSize; i++ {
-		strArr := []string{}
+		strArr := [][]byte{}
 		for j := 0; j < i; j++ {
 			index := rand.Int() % (len(contentTest) - 1)
-			strArr = append(strArr, contentTest[index])
+			strArr = append(strArr, []byte(contentTest[index]))
 		}
-		insert.Content = strings.Join(strArr, " ")
+		insert.Content = bytes.Join(strArr, []byte{' '})
 		db.Insert(insert)
 	}
 }
@@ -93,7 +93,7 @@ func BenchmarkDatabase_SearchWherePrefix(b *testing.B) {
 }
 
 func BenchmarkDatabase_Insert(b *testing.B) {
-	insert := query.Insert{CollectionName: colName, Content: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."}
+	insert := query.Insert{CollectionName: colName, Content: []byte("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")}
 	for i := 0; i < b.N; i++ {
 		db.Insert(insert)
 	}

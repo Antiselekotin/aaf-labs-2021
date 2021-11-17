@@ -1,4 +1,4 @@
-package textprocessing
+package contentprocessing
 
 func ShiftAndNewLineString(swift_size int, s string) string {
 	template := ""

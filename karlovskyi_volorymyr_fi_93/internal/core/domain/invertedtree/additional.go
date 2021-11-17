@@ -2,7 +2,7 @@ package invertedtree
 
 import (
 	"fmt"
-	"labdb/internal/core/domain/textprocessing"
+	"labdb/internal/core/domain/contentprocessing"
 	"strings"
 )
 
@@ -31,7 +31,7 @@ func tellAboutYourself(n *nodeStringIntMapOfIntSliceTreeMap, depth int, prefix s
 		return
 	}
 	fmt.Println(
-		textprocessing.ShiftString(depth, fmt.Sprintf("(%v) -> %v", prefix, n.Key())))
+		contentprocessing.ShiftString(depth, fmt.Sprintf("(%v) -> %v", prefix, n.Key())))
 	tellAboutYourself(n.left, depth+1, "left")
 	tellAboutYourself(n.right, depth+1, "right")
 }

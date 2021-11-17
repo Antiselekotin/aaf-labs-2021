@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"labdb/internal/core/domain/textprocessing"
+	"labdb/internal/core/domain/contentprocessing"
 )
 
 func Parse(str string) (Query, error) {
@@ -13,8 +13,8 @@ func Parse(str string) (Query, error) {
 		str = str[:len(str)-1]
 	}
 	str, memMap := replaceRawString(str)
-	str = textprocessing.RemoveIndent(str)
-	str = textprocessing.Trim(str)
+	str = contentprocessing.RemoveIndent(str)
+	str = contentprocessing.Trim(str)
 	if strings.HasPrefix(strings.ToLower(str), "create ") {
 		return parseCreateQuery(str, memMap)
 	}
@@ -54,7 +54,7 @@ func parseInsertQuery(str string, memMap map[string]string) (Insert, error) {
 	}
 	return Insert{
 		CollectionName: split[1],
-		Content:        memMap[split[2]],
+		Content:        []byte(memMap[split[2]]),
 	}, nil
 }
 

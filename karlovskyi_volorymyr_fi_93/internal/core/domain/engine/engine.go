@@ -1,11 +1,11 @@
 package engine
 
 import (
+	"bytes"
 	"fmt"
+	"labdb/internal/core/domain/contentprocessing"
 	tree "labdb/internal/core/domain/invertedtree"
 	"labdb/internal/core/domain/query"
-	"labdb/internal/core/domain/textprocessing"
-	"strings"
 )
 
 type Database interface {
@@ -28,7 +28,7 @@ func New() *database {
 }
 
 type Collection struct {
-	content       []string
+	content       [][]byte
 	reversedIndex tree.StringIntMapOfIntSliceTreeMap
 }
 
@@ -51,10 +51,10 @@ func (db *database) Insert(q query.Insert) (success string, err error) {
 	}
 	collection := db.collections[q.CollectionName]
 	originalContent := q.Content
-	contentNoPunc := textprocessing.RemovePunctuation(originalContent)
-	content := strings.ToLower(contentNoPunc)
+	contentNoPunc := contentprocessing.RemovePunctuationBytes(originalContent)
+	content := bytes.ToLower(contentNoPunc)
 	insertIndex := len(collection.content)
-	splitMap := textprocessing.SplitStringWithPositions(content)
+	splitMap := contentprocessing.SplitBytesWithPositions(content)
 
 	for word, positions := range splitMap {
 		oldMap, ok := collection.reversedIndex.Get(word)

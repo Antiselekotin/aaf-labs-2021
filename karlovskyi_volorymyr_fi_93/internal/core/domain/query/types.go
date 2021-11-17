@@ -10,7 +10,7 @@ type Create struct {
 
 type Insert struct {
 	CollectionName string
-	Content string
+	Content []byte
 
 }
 
