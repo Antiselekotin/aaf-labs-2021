@@ -1,4 +1,4 @@
-package textprocessing
+package contentprocessing
 
 import (
 	"strings"

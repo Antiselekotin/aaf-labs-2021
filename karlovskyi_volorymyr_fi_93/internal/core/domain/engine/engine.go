@@ -4,7 +4,7 @@ import (
 	"fmt"
 	tree "labdb/internal/core/domain/invertedtree"
 	"labdb/internal/core/domain/query"
-	"labdb/internal/core/domain/textprocessing"
+	"labdb/internal/core/domain/contentprocessing"
 	"strings"
 )
 
@@ -36,7 +36,7 @@ func stringIntMapOfIntSliceTreeMapLess(a, b string) bool { return a < b }
 
 func (db *database) Create(q query.Create) (success string, err error) {
 	if db.collectionsRegistry[q.Name] {
-		return "", fmt.Errorf("Collection %v already exists", q.Name)
+		return "", ErrCollectionAlreadyExists
 	}
 	reversedIndex := tree.NewStringIntMapOfIntSliceTreeMap(stringIntMapOfIntSliceTreeMapLess)
 	db.collections[q.Name] = &Collection{reversedIndex: *reversedIndex}
@@ -47,14 +47,14 @@ func (db *database) Create(q query.Create) (success string, err error) {
 
 func (db *database) Insert(q query.Insert) (success string, err error) {
 	if !db.collectionsRegistry[q.CollectionName] {
-		return "", fmt.Errorf("Collection %v does not already exists", q.CollectionName)
+		return "", ErrCollectionNotExists
 	}
 	collection := db.collections[q.CollectionName]
 	originalContent := q.Content
-	contentNoPunc := textprocessing.RemovePunctuation(originalContent)
+	contentNoPunc := contentprocessing.RemovePunctuation(originalContent)
 	content := strings.ToLower(contentNoPunc)
 	insertIndex := len(collection.content)
-	splitMap := textprocessing.SplitStringWithPositions(content)
+	splitMap := contentprocessing.SplitStringWithPositions(content)
 
 	for word, positions := range splitMap {
 		oldMap, ok := collection.reversedIndex.Get(word)

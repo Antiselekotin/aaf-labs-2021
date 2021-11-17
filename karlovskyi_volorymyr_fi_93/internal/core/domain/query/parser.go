@@ -1,11 +1,10 @@
 package query
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
-	"labdb/internal/core/domain/textprocessing"
+	"labdb/internal/core/domain/contentprocessing"
 )
 
 func Parse(str string) (Query, error) {
@@ -13,8 +12,8 @@ func Parse(str string) (Query, error) {
 		str = str[:len(str)-1]
 	}
 	str, memMap := replaceRawString(str)
-	str = textprocessing.RemoveIndent(str)
-	str = textprocessing.Trim(str)
+	str = contentprocessing.RemoveIndent(str)
+	str = contentprocessing.Trim(str)
 	if strings.HasPrefix(strings.ToLower(str), "create ") {
 		return parseCreateQuery(str, memMap)
 	}
@@ -28,16 +27,16 @@ func Parse(str string) (Query, error) {
 		return parsePrintQuery(str, memMap)
 	}
 
-	return nil, fmt.Errorf("unknown statement")
+	return nil, ErrUnknown
 }
 
 func parseCreateQuery(str string, memMap map[string]string) (Create, error) {
 	split := strings.Split(str, " ")
 	if len(split) != 2 {
-		return Create{}, fmt.Errorf("create statement must have 2 words")
+		return Create{}, ErrCreateQuantity
 	}
 	if len(memMap) != 0 {
-		return Create{}, fmt.Errorf("create statement must have no quotes")
+		return Create{}, ErrCreateQuotes
 	}
 	return Create{
 		Name: split[1],
@@ -47,10 +46,10 @@ func parseCreateQuery(str string, memMap map[string]string) (Create, error) {
 func parseInsertQuery(str string, memMap map[string]string) (Insert, error) {
 	split := strings.Split(str, " ")
 	if len(split) != 3 {
-		return Insert{}, fmt.Errorf("insert statement must have 3 words")
+		return Insert{}, ErrInsertQuantity
 	}
 	if len(memMap) != 1 {
-		return Insert{}, fmt.Errorf("create statement must have one quotes pair")
+		return Insert{}, ErrInsertQuotes
 	}
 	return Insert{
 		CollectionName: split[1],
@@ -61,7 +60,7 @@ func parseInsertQuery(str string, memMap map[string]string) (Insert, error) {
 func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	split := strings.Split(str, " ")
 	if len(split) != 2 && len(split) != 4 && len(split) != 6 {
-		return Search{}, fmt.Errorf("search statement must have 2 or 4 or 6 words")
+		return Search{}, ErrSearchQuantity
 	}
 
 	if len(split) == 2 {
@@ -72,11 +71,11 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if strings.ToLower(split[2]) != "where" {
-		return Search{}, fmt.Errorf("there are must be where statement")
+		return Search{}, ErrSearchNoWhere
 	}
 
 	if len(memMap) != 1 && len(memMap) != 2 {
-		return Search{}, fmt.Errorf("search query must have 1 or 2 search words in quotes")
+		return Search{}, ErrWhereQuantity
 	}
 
 	search := Search{
@@ -86,13 +85,13 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 
 	if strings.HasSuffix(split[3], "*") && len(split) == 4 {
 		if strings.HasSuffix(split[3], "**") {
-			return Search{}, fmt.Errorf("prefix statement must have only one '*' symbol")
+			return Search{}, ErrPrefixSyntax
 		}
 		if len(mapIndex) != 0 {
 			mapIndex = mapIndex[:len(mapIndex)-1]
 		}
 		if memMap[mapIndex] == "" {
-			return search, fmt.Errorf("bad search parameter")
+			return search, ErrSearchParams
 		}
 		search.Where = &WherePrefix{
 			Prefix: memMap[mapIndex],
@@ -101,7 +100,7 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if memMap[mapIndex] == "" {
-		return search, fmt.Errorf("bad search parameter")
+		return search, ErrSearchParams
 	}
 
 	if len(split) == 4 {
@@ -112,16 +111,16 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 	}
 
 	if len(split[4]) < 3 {
-		return search, fmt.Errorf("bad internal parameter")
+		return search, ErrIntervalParams
 	}
 	intervalStr := split[4]
 	internal, err := strconv.ParseInt(intervalStr[1:len(intervalStr)-1], 10, 64)
 
 	if err != nil {
-		return search, fmt.Errorf("can not parse interval")
+		return search, ErrIntervalParsing
 	}
 	if memMap[split[len(split)-1]] == "" {
-		return search, fmt.Errorf("bad search parameter")
+		return search, ErrSearchParams
 	}
 
 	where := WhereInterval{
@@ -138,10 +137,10 @@ func parseSearchQuery(str string, memMap map[string]string) (Search, error) {
 func parsePrintQuery(str string, memMap map[string]string) (Print, error) {
 	split := strings.Split(str, " ")
 	if len(split) != 2 {
-		return Print{}, fmt.Errorf("print_index statement must have 2 words")
+		return Print{}, ErrPrintQuantity
 	}
 	if len(memMap) != 0 {
-		return Print{}, fmt.Errorf("print_index statement must have no quotes")
+		return Print{}, ErrPrintQuotes
 	}
 	return Print{
 		CollectionName: split[1],

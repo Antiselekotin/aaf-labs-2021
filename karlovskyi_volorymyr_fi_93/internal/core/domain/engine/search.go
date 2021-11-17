@@ -1,13 +1,12 @@
 package engine
 
 import (
-	"fmt"
 	"labdb/internal/core/domain/query"
 )
 
 func (db *database) Search(q query.Search) ([]string, error) {
 	if !db.collectionsRegistry[q.CollectionName] {
-		return nil, fmt.Errorf("Collection %v does not already exists", q.CollectionName)
+		return nil, ErrCollectionNotExists
 	}
 	collection := db.collections[q.CollectionName]
 

@@ -3,12 +3,12 @@ package engine
 import (
 	"fmt"
 	"labdb/internal/core/domain/query"
-	"labdb/internal/core/domain/textprocessing"
+	"labdb/internal/core/domain/contentprocessing"
 )
 
 func (db *database) Print(q query.Print) (str string, err error) {
 	if !db.collectionsRegistry[q.CollectionName] {
-		return str, fmt.Errorf("Collection %v does not already exists", q.CollectionName)
+		return str, ErrCollectionNotExists
 	}
 
 	collection := db.collections[q.CollectionName]
@@ -18,9 +18,9 @@ func (db *database) Print(q query.Print) (str string, err error) {
 		key := iterator.Key()
 		insideMap := iterator.Value()
 
-		str += textprocessing.ShiftAndNewLineString(0, fmt.Sprintf("\"%v\":", key))
+		str += contentprocessing.ShiftAndNewLineString(0, fmt.Sprintf("\"%v\":", key))
 		for document, positions := range insideMap {
-			str += textprocessing.ShiftAndNewLineString(1, fmt.Sprintf("document #%v -> %v", document, positions))
+			str += contentprocessing.ShiftAndNewLineString(1, fmt.Sprintf("document #%v -> %v", document, positions))
 		}
 	}
 
